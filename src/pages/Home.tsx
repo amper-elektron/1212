@@ -85,7 +85,7 @@ export default function Home() {
           >
             <div className="relative w-full max-w-md aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl">
               <img
-                src="/uploads/home_photo1.png"
+                src="/home_photo1.png"
                 alt="Asmar teaching"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
