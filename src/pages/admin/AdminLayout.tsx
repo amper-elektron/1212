@@ -9,6 +9,7 @@ const adminLinks = [
   { name: 'Requests', path: '/admin/requests', icon: Users },
   { name: 'Feedback', path: '/admin/feedback', icon: MessageSquare },
   { name: 'FAQ', path: '/admin/faq', icon: HelpCircle },
+  { name: 'Images', path: '/admin/images', icon: ImageIcon },
 ];
 
 export default function AdminLayout() {
