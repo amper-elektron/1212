@@ -29,7 +29,13 @@ export default function Blog() {
   const [sort, setSort] = useState<'newest' | 'likes'>('newest');
   const [newCommentName, setNewCommentName] = useState('');
   const [newCommentText, setNewCommentText] = useState('');
-  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  const [commentStatus, setCommentStatus] = useState(''); // Yorum gönderildi mesajı için
+  
+  // BEĞENİLERİ LOCALSTORAGE'DAN ÇEKİYORUZ (Aynı kişi 2 kere beğenemez)
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(() => {
+    const saved = localStorage.getItem('blogLikes');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
 
   useEffect(() => {
     fetchPosts();
@@ -53,12 +59,15 @@ export default function Blog() {
 
   const handleLike = async (e: React.MouseEvent, postId: number) => {
     e.stopPropagation();
-    if (likedPosts.has(postId)) return;
+    if (likedPosts.has(postId)) return; // Daha önce beğendiyse durdur
     
     await fetch(`/api/blog/${postId}/like`, { method: 'POST' });
-    setLikedPosts(new Set([...likedPosts, postId]));
     
-    // Update local state
+    // Hafızaya Kaydet
+    const newLiked = new Set([...likedPosts, postId]);
+    setLikedPosts(newLiked);
+    localStorage.setItem('blogLikes', JSON.stringify([...newLiked]));
+    
     setPosts(posts.map(p => p.id === postId ? { ...p, likes: (p.likes || 0) + 1 } : p));
     if (selectedPost?.id === postId) {
       setSelectedPost({ ...selectedPost, likes: (selectedPost.likes || 0) + 1 });
@@ -77,9 +86,8 @@ export default function Blog() {
 
     setNewCommentName('');
     setNewCommentText('');
-    
-    // Refresh post to get new comments
-    openPost(selectedPost);
+    setCommentStatus('Your comment has been submitted and is waiting for admin approval.');
+    setTimeout(() => setCommentStatus(''), 5000); // 5 saniye sonra mesajı gizle
   };
 
   return (
@@ -238,12 +246,18 @@ export default function Blog() {
                       </div>
                     </div>
 
-                    {/* Comments Section */}
                     <div className="border-t border-gray-200 pt-12">
                       <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-2">
                         <MessageCircle className="w-6 h-6" />
                         Comments ({selectedPost.comments?.length || 0})
                       </h3>
+
+                      {/* Onay Bekliyor Mesajı */}
+                      {commentStatus && (
+                        <div className="bg-green-50 text-green-700 p-4 rounded-xl mb-6 font-medium border border-green-200">
+                          {commentStatus}
+                        </div>
+                      )}
 
                       <form onSubmit={handleComment} className="bg-gray-50 p-6 rounded-2xl mb-10">
                         <h4 className="font-bold text-gray-900 mb-4">Leave a comment</h4>
