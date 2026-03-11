@@ -148,18 +148,31 @@ try {
 
 initDb();
 
-// Middleware to track visitors
-const trackVisitor = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (!req.path.startsWith('/api/')) {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-    try {
-      await db.execute({ sql: 'INSERT OR IGNORE INTO visitors (ip) VALUES (?)', args: [String(ip)] });
-    } catch (e) {
-      // Ignore
-    }
+// ZİYARETÇİ SAYACI (YENİ EKLENDİ)
+app.post('/api/track-visit', async (req, res) => {
+  // Vercel'in karmaşık IP formatından sadece asıl IP'yi alıyoruz
+  const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  const ip = String(rawIp).split(',')[0].trim(); 
+  
+  try {
+    await db.execute({ sql: 'INSERT OR IGNORE INTO visitors (ip) VALUES (?)', args: [ip] });
+    res.json({ success: true });
+  } catch (e) {
+    res.json({ success: false });
   }
-  next();
-};
+});// ZİYARETÇİ SAYACI (YENİ EKLENDİ)
+app.post('/api/track-visit', async (req, res) => {
+  // Vercel'in karmaşık IP formatından sadece asıl IP'yi alıyoruz
+  const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  const ip = String(rawIp).split(',')[0].trim(); 
+  
+  try {
+    await db.execute({ sql: 'INSERT OR IGNORE INTO visitors (ip) VALUES (?)', args: [ip] });
+    res.json({ success: true });
+  } catch (e) {
+    res.json({ success: false });
+  }
+});
 
 // Auth middleware
 const requireAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -176,7 +189,7 @@ const requireAuth = (req: express.Request, res: express.Response, next: express.
   }
 };
 
-app.use(trackVisitor);
+
 
 // Auth
 app.post('/api/login', (req, res) => {
