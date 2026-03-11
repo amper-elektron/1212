@@ -1,7 +1,19 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { BookOpen, Users, Star, Award, CheckCircle2 } from 'lucide-react';
 
 export default function About() {
+  // YENİ EKLENDİ: Resim ayarlarını tutacak state
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  // YENİ EKLENDİ: Sayfa açıldığında veritabanından ayarları çek
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => setSettings(data))
+      .catch(err => console.error(err));
+  }, []);
+
   return (
     <div className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="grid lg:grid-cols-2 gap-16 items-center mb-24">
@@ -12,8 +24,9 @@ export default function About() {
         >
           <div className="relative">
             <div className="aspect-[3/4] rounded-[2rem] overflow-hidden shadow-2xl">
+              {/* YENİ EKLENDİ: Resim yolu artık dinamik */}
               <img
-                src="/uploads/about_photo1.png"
+                src={settings['about_image_1'] || "/about_photo1.png"}
                 alt="Asmar Burjaliyeva"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
