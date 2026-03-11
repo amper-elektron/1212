@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { CheckCircle2, Clock, XCircle, Edit2, Check, X } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle, Edit2, Check, X, Trash2 } from 'lucide-react';
 
 interface Request {
   id: number;
@@ -58,6 +58,17 @@ export default function AdminRequests() {
     });
     setIsEditing(null);
     fetchRequests();
+  };
+
+  // YENİ EKLENEN SİLME FONKSİYONU
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Bu isteği silmek istediğinize emin misiniz?')) {
+      await fetch(`/api/admin/requests/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+      });
+      fetchRequests();
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -175,8 +186,17 @@ export default function AdminRequests() {
                       <button
                         onClick={() => { setIsEditing(req.id); setEditForm(req); }}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit"
                       >
                         <Edit2 className="w-4 h-4" />
+                      </button>
+                      {/* YENİ EKLENEN SİLME BUTONU */}
+                      <button
+                        onClick={() => handleDelete(req.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
                   </>
