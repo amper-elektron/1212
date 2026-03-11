@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop'; 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -17,6 +18,8 @@ import AdminFeedback from './pages/admin/AdminFeedback';
 import AdminFAQ from './pages/admin/AdminFAQ';
 import Login from './pages/admin/Login';
 import AdminImages from './pages/admin/AdminImages';
+import AdminComments from './pages/admin/AdminComments'; // YENİ EKLENDİ
+
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('adminToken');
@@ -29,6 +32,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 export default function App() {
   return (
     <Router>
+      <ScrollToTop /> {/* YENİ EKLENDİ: Sayfa değiştiğinde en üste çıkaran sistem */}
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Layout><Home /></Layout>} />
@@ -49,7 +53,8 @@ export default function App() {
           <Route path="requests" element={<AdminRequests />} />
           <Route path="feedback" element={<AdminFeedback />} />
           <Route path="faq" element={<AdminFAQ />} />
-          <Route path="/admin/images" element={<AdminImages />} />
+          <Route path="images" element={<AdminImages />} /> {/* DÜZELTİLDİ */}
+          <Route path="comments" element={<AdminComments />} /> {/* YENİ EKLENDİ */}
         </Route>
       </Routes>
     </Router>
