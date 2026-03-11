@@ -341,16 +341,7 @@ export default function Home() {
         {/* ── CTA — NEW THEMED ── */}
         <section className="py-28 relative z-10" style={{ background: 'linear-gradient(180deg, #f9f6f0 0%, #fdfbf7 100%)' }}>
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="flex items-center justify-center gap-3 mb-6"
-            >
-              <div className="h-px w-8 bg-[#C9A96E]" />
-              <span className="section-label">Get Started</span>
-              <div className="h-px w-8 bg-[#C9A96E]" />
-            </motion.div>
+            
 
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -384,12 +375,7 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            {/* footer flourish */}
-            <div className="flex items-center justify-center gap-4 mt-16">
-              <div className="h-px w-20 bg-[#ece8e0]" />
-              <span className="text-[#C9A96E] text-sm">✦</span>
-              <div className="h-px w-20 bg-[#ece8e0]" />
-            </div>
+           
           </div>
         </section>
 
