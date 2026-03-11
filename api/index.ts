@@ -416,6 +416,41 @@ app.get('/api/admin/stats', requireAuth, async (req, res) => {
   res.json({ pendingRequests: result.rows[0].count });
 });
 
+// --- SITE SETTINGS (HOME IMAGES) ---
+app.get('/api/settings', async (req, res) => {
+  try {
+    // Tablo yoksa otomatik oluşturur (ilk çalışmada)
+    await db.execute('CREATE TABLE IF NOT EXISTS site_settings (setting_key TEXT PRIMARY KEY, setting_value TEXT)');
+    const result = await db.execute('SELECT * FROM site_settings');
+    const settings: Record<string, string> = {};
+    result.rows.forEach((row: any) => { settings[row.setting_key] = row.setting_value; });
+    res.json(settings);
+  } catch (e) { 
+    res.json({}); 
+  }
+});
+
+app.post('/api/admin/settings', requireAuth, upload.single('image'), async (req, res) => {
+  try {
+    const { key } = req.body;
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    
+    await db.execute('CREATE TABLE IF NOT EXISTS site_settings (setting_key TEXT PRIMARY KEY, setting_value TEXT)');
+    const url = await uploadToCloudinary(req.file.buffer, 'settings');
+    
+    // Veritabanına kaydet veya varsa güncelle
+    await db.execute({ 
+      sql: 'INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON CONFLICT(setting_key) DO UPDATE SET setting_value = ?', 
+      args: [key, url, url] 
+    });
+    
+    res.json({ success: true, url });
+  } catch (error) {
+    console.error('Settings upload error:', error);
+    res.status(500).json({ error: 'Failed to update setting' });
+  }
+});
+
 app.get('/api/admin/analytics', requireAuth, async (req, res) => {
   const { filter } = req.query; // 'day', 'month', 'year', 'all'
   
