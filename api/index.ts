@@ -34,7 +34,11 @@ const ADMIN_PASS = process.env.ADMIN_PASS || '238492@';
 
 // Initialize Database
 async function initDb() {
-  try {
+  // Yorumlara onay sütunu ekle (Eğer daha önce yoksa)
+try {
+  await db.execute('ALTER TABLE blog_comments ADD COLUMN approved BOOLEAN DEFAULT 0');
+} catch (e) { /* Sütun zaten varsa hata vermez, yoksayar */ }
+try {
     await db.executeMultiple(`
       CREATE TABLE IF NOT EXISTS courses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -248,7 +252,7 @@ app.get('/api/blog/:id', async (req, res) => {
   const postResult = await db.execute({ sql: 'SELECT * FROM blog_posts WHERE id = ? AND archived = 0', args: [req.params.id] });
   const post = postResult.rows[0];
   if (!post) return res.status(404).json({ error: 'Not found' });
-  const commentsResult = await db.execute({ sql: 'SELECT * FROM blog_comments WHERE post_id = ? ORDER BY created_at DESC', args: [req.params.id] });
+  const commentsResult = await db.execute({ sql: 'SELECT * FROM blog_comments WHERE post_id = ? AND approved = 1 ORDER BY created_at DESC', args: [req.params.id] });
   res.json({ ...post, comments: commentsResult.rows });
 });
 app.post('/api/blog/:id/like', async (req, res) => {
@@ -311,6 +315,23 @@ app.post('/api/admin/upload', requireAuth, upload.single('image'), async (req, r
     console.error('Upload error:', error);
     res.status(500).json({ error: 'Failed to upload image' });
   }
+});
+app.get('/api/admin/comments', requireAuth, async (req, res) => {
+  const result = await db.execute(`
+    SELECT c.*, p.title as post_title 
+    FROM blog_comments c 
+    JOIN blog_posts p ON c.post_id = p.id 
+    ORDER BY c.created_at DESC
+  `);
+  res.json(result.rows);
+});
+app.put('/api/admin/comments/:id/approve', requireAuth, async (req, res) => {
+  await db.execute({ sql: 'UPDATE blog_comments SET approved = 1 WHERE id = ?', args: [req.params.id] });
+  res.json({ success: true });
+});
+app.delete('/api/admin/comments/:id', requireAuth, async (req, res) => {
+  await db.execute({ sql: 'DELETE FROM blog_comments WHERE id = ?', args: [req.params.id] });
+  res.json({ success: true });
 });
 
 // FAQ
