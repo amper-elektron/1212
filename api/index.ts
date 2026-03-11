@@ -5,6 +5,9 @@ import jwt from 'jsonwebtoken';
 import { v2 as cloudinary } from 'cloudinary';
 import streamifier from 'streamifier';
 
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
