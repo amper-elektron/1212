@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import React, { useEffect } from 'react'; 
+import WhatsAppButton from './components/WhatsAppButton'; 
 import ScrollToTop from './components/ScrollToTop'; 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -72,6 +73,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-grow pt-20">
         {children}
       </main>
+      <WhatsAppButton />
       <Footer />
     </div>
   );
