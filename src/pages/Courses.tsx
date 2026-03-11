@@ -280,8 +280,37 @@ export default function Courses() {
       >
         <div className="noise-overlay" />
 
+        {/* ── PAGE INTRO ── */}
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 pt-24 pb-2 relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-center gap-3 mb-5"
+          >
+            <div className="h-px w-8 bg-[#C9A96E]" />
+            <span className="section-label">Curriculum</span>
+            <div className="h-px w-8 bg-[#C9A96E]" />
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+            className="font-display text-5xl sm:text-6xl font-black text-[#1a1a2e] leading-tight mb-4"
+          >
+            Our Courses
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12, duration: 0.55 }}
+            className="text-[#6b6b8a] text-lg max-w-xl mx-auto leading-relaxed"
+          >
+            Whether you're preparing for exams or just want to speak confidently — there's a program built exactly for you.
+          </motion.p>
+        </div>
+
         {/* ── COURSES ── */}
-        <section className="max-w-6xl mx-auto px-5 sm:px-8 pt-28 pb-20 relative z-10">
+        <section className="max-w-6xl mx-auto px-5 sm:px-8 pt-14 pb-20 relative z-10">
           <div className="flex items-center gap-4 mb-12">
             <div className="h-px w-8 bg-[#C9A96E]" />
             <span className="section-label">Programs</span>
@@ -393,43 +422,6 @@ export default function Courses() {
           </section>
         )}
 
-        {/* ── CTA STRIP — dark, mirrors Blog hero card ── */}
-        <section className="cta-strip py-20 relative z-10">
-          <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-8 relative z-10">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-px w-8 bg-[#C9A96E]" />
-                <span className="section-label">Get Started</span>
-              </div>
-              <h3 className="font-display text-4xl sm:text-5xl font-black text-white leading-tight">
-                Ready to start<br />
-                <span style={{ color: '#C9A96E', fontStyle: 'italic' }}>learning?</span>
-              </h3>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 flex-shrink-0">
-              <Link
-                to="/contact"
-                style={{ background: '#C9A96E', color: '#1a1a2e' }}
-                className="flex items-center gap-2 font-semibold text-sm px-7 py-4 rounded-xl hover:opacity-90 transition-opacity"
-              >
-                Book a Free Trial <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                to="/about"
-                className="flex items-center gap-2 border border-white/20 text-white/80 font-semibold text-sm px-7 py-4 rounded-xl hover:bg-white/10 transition-colors"
-              >
-                Meet the Teacher
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer flourish — same as Blog */}
-        <div className="flex items-center justify-center gap-4 py-10 relative z-10">
-          <div className="h-px w-20 bg-[#ece8e0]" />
-          <span className="text-[#C9A96E] text-sm">✦</span>
-          <div className="h-px w-20 bg-[#ece8e0]" />
-        </div>
 
       </div>
     </>
