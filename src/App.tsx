@@ -20,7 +20,7 @@ import Login from './pages/admin/Login';
 import AdminImages from './pages/admin/AdminImages';
 import AdminComments from './pages/admin/AdminComments'; // YENİ EKLENDİ
 
-
+/**/
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('adminToken');
   if (!token) {
