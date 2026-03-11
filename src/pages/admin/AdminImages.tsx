@@ -33,7 +33,7 @@ export default function AdminImages() {
         },
         body: formData
       });
-      fetchSettings(); // Yükleme bitince yeni resmi ekrana getir
+      fetchSettings(); // Yükleme bitince ekranı güncelle
     } catch (error) {
       console.error("Upload failed", error);
     } finally {
@@ -41,67 +41,72 @@ export default function AdminImages() {
     }
   };
 
-  if (loading) return <div className="animate-pulse">Loading...</div>;
+  if (loading) return <div className="animate-pulse flex gap-2"><Loader2 className="animate-spin" /> Yükleniyor...</div>;
+
+  // Tasarımı sadeleştirmek için oluşturduğumuz küçük kutu mantığı
+  const ImageRow = ({ title, settingKey, defaultImage }: { title: string, settingKey: string, defaultImage: string }) => (
+    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between gap-4">
+      <div className="flex items-center gap-4">
+        {/* Küçük Kare Önizleme */}
+        <div className="w-16 h-16 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
+          <img 
+            src={settings[settingKey] || defaultImage} 
+            alt={title} 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+          <p className="text-sm text-gray-500">Bu resmi değiştirmek için sağdaki butonu kullanın.</p>
+        </div>
+      </div>
+
+      {/* Yükleme Butonu */}
+      <label className="flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-xl cursor-pointer hover:bg-brand-purple transition-colors text-sm font-medium">
+        {uploadingKey === settingKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+        {uploadingKey === settingKey ? 'Yükleniyor...' : 'Resmi Değiştir'}
+        <input 
+          type="file" 
+          accept="image/*" 
+          className="hidden" 
+          onChange={(e) => {
+            if (e.target.files && e.target.files[0]) {
+              handleImageUpload(settingKey, e.target.files[0]);
+            }
+          }}
+        />
+      </label>
+    </div>
+  );
 
   return (
-    <div>
+    <div className="max-w-4xl">
       <h1 className="text-3xl font-display font-bold text-gray-900 mb-8 flex items-center gap-3">
         <ImageIcon className="w-8 h-8 text-brand-purple" />
-        Manage Home Images
+        Site Resimlerini Yönet
       </h1>
       
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Ana Sayfa Üst Resim */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold mb-4">Home Page - Top Image</h2>
-          <div className="aspect-[4/5] bg-gray-100 rounded-xl overflow-hidden mb-4 relative shadow-inner">
-            <img 
-              src={settings['home_image_1'] || '/home_photo1.png'} 
-              alt="Home Top" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <label className="flex items-center justify-center gap-2 w-full bg-brand-purple text-white px-4 py-3 rounded-xl cursor-pointer hover:bg-purple-700 transition">
-            {uploadingKey === 'home_image_1' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
-            {uploadingKey === 'home_image_1' ? 'Uploading...' : 'Change Image'}
-            <input 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  handleImageUpload('home_image_1', e.target.files[0]);
-                }
-              }}
-            />
-          </label>
-        </div>
-
-        {/* Ana Sayfa Alt Resim */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold mb-4">Home Page - Bottom Image</h2>
-          <div className="aspect-square bg-gray-100 rounded-[3rem] overflow-hidden mb-4 relative shadow-inner">
-            <img 
-              src={settings['home_image_2'] || '/uploads/home_photo2.png'} 
-              alt="Home Bottom" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <label className="flex items-center justify-center gap-2 w-full bg-gray-900 text-white px-4 py-3 rounded-xl cursor-pointer hover:bg-gray-800 transition">
-            {uploadingKey === 'home_image_2' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
-            {uploadingKey === 'home_image_2' ? 'Uploading...' : 'Change Image'}
-            <input 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  handleImageUpload('home_image_2', e.target.files[0]);
-                }
-              }}
-            />
-          </label>
-        </div>
+      <div className="flex flex-col gap-4">
+        {/* Ana Sayfa 1 */}
+        <ImageRow 
+          title="Ana Sayfa - Üst Resim" 
+          settingKey="home_image_1" 
+          defaultImage="/home_photo1.png" 
+        />
+        
+        {/* Ana Sayfa 2 */}
+        <ImageRow 
+          title="Ana Sayfa - Alt Resim" 
+          settingKey="home_image_2" 
+          defaultImage="/uploads/home_photo2.png" 
+        />
+        
+        {/* About Sayfası */}
+        <ImageRow 
+          title="Hakkımda (About) Sayfası" 
+          settingKey="about_image_1" 
+          defaultImage="/about_photo1.png" 
+        />
       </div>
     </div>
   );
