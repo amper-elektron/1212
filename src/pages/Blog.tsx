@@ -626,12 +626,7 @@ export default function Blog() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-14"
           >
-            {/* Eyebrow */}
-            <div className="flex items-center justify-center gap-2 mb-5">
-              <div className="h-px w-12 bg-[#C9A96E]" />
-              <span className="font-mono-custom text-xs tracking-[0.25em] text-[#C9A96E] uppercase">The Journal</span>
-              <div className="h-px w-12 bg-[#C9A96E]" />
-            </div>
+            
 
             <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-black text-[#1a1a2e] leading-none tracking-tight mb-5">
               Blog
