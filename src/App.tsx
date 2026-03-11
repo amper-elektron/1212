@@ -16,6 +16,7 @@ import AdminRequests from './pages/admin/AdminRequests';
 import AdminFeedback from './pages/admin/AdminFeedback';
 import AdminFAQ from './pages/admin/AdminFAQ';
 import Login from './pages/admin/Login';
+import AdminImages from './pages/admin/AdminImages';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('adminToken');
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="requests" element={<AdminRequests />} />
           <Route path="feedback" element={<AdminFeedback />} />
           <Route path="faq" element={<AdminFAQ />} />
+          <Route path="/admin/images" element={<AdminImages />} />
         </Route>
       </Routes>
     </Router>
