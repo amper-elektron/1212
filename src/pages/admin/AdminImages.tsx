@@ -33,7 +33,7 @@ export default function AdminImages() {
         },
         body: formData
       });
-      fetchSettings(); // Yükleme bitince ekranı güncelle
+      fetchSettings(); // Refresh the image after upload
     } catch (error) {
       console.error("Upload failed", error);
     } finally {
@@ -41,13 +41,12 @@ export default function AdminImages() {
     }
   };
 
-  if (loading) return <div className="animate-pulse flex gap-2"><Loader2 className="animate-spin" /> Yükleniyor...</div>;
+  if (loading) return <div className="animate-pulse flex gap-2 font-medium text-gray-600"><Loader2 className="animate-spin" /> Loading...</div>;
 
-  // Tasarımı sadeleştirmek için oluşturduğumuz küçük kutu mantığı
   const ImageRow = ({ title, settingKey, defaultImage }: { title: string, settingKey: string, defaultImage: string }) => (
     <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between gap-4">
       <div className="flex items-center gap-4">
-        {/* Küçük Kare Önizleme */}
+        {/* Thumbnail Preview */}
         <div className="w-16 h-16 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
           <img 
             src={settings[settingKey] || defaultImage} 
@@ -57,14 +56,14 @@ export default function AdminImages() {
         </div>
         <div>
           <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-          <p className="text-sm text-gray-500">Bu resmi değiştirmek için sağdaki butonu kullanın.</p>
+          <p className="text-sm text-gray-500">Use the button on the right to change this image.</p>
         </div>
       </div>
 
-      {/* Yükleme Butonu */}
+      {/* Upload Button */}
       <label className="flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-xl cursor-pointer hover:bg-brand-purple transition-colors text-sm font-medium">
         {uploadingKey === settingKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-        {uploadingKey === settingKey ? 'Yükleniyor...' : 'Resmi Değiştir'}
+        {uploadingKey === settingKey ? 'Uploading...' : 'Change Image'}
         <input 
           type="file" 
           accept="image/*" 
@@ -83,27 +82,27 @@ export default function AdminImages() {
     <div className="max-w-4xl">
       <h1 className="text-3xl font-display font-bold text-gray-900 mb-8 flex items-center gap-3">
         <ImageIcon className="w-8 h-8 text-brand-purple" />
-        Site Resimlerini Yönet
+        Manage Site Images
       </h1>
       
       <div className="flex flex-col gap-4">
-        {/* Ana Sayfa 1 */}
+        {/* Home Page Top Image */}
         <ImageRow 
-          title="Ana Sayfa - Üst Resim" 
+          title="Home Page - Top Image" 
           settingKey="home_image_1" 
           defaultImage="/home_photo1.png" 
         />
         
-        {/* Ana Sayfa 2 */}
+        {/* Home Page Bottom Image */}
         <ImageRow 
-          title="Ana Sayfa - Alt Resim" 
+          title="Home Page - Bottom Image" 
           settingKey="home_image_2" 
           defaultImage="/uploads/home_photo2.png" 
         />
         
-        {/* About Sayfası */}
+        {/* About Page Image */}
         <ImageRow 
-          title="Hakkımda (About) Sayfası" 
+          title="About Page Image" 
           settingKey="about_image_1" 
           defaultImage="/about_photo1.png" 
         />
