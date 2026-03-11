@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react'; 
 import ScrollToTop from './components/ScrollToTop'; 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -30,6 +31,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default function App() {
+  useEffect(() => {
+    fetch('/api/track-visit', { method: 'POST' }).catch(() => {});
+  }, []);
   return (
     <Router>
       <ScrollToTop /> {/* YENİ EKLENDİ: Sayfa değiştiğinde en üste çıkaran sistem */}
