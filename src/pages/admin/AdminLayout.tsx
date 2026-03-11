@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, FileText, MessageSquare, Users, Settings, LogOut, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, BookOpen, FileText, MessageSquare, Users, Settings, LogOut, HelpCircle, Image as ImageIcon } from 'lucide-react';
 import clsx from 'clsx';
 
 const adminLinks = [
@@ -9,7 +9,7 @@ const adminLinks = [
   { name: 'Requests', path: '/admin/requests', icon: Users },
   { name: 'Feedback', path: '/admin/feedback', icon: MessageSquare },
   { name: 'FAQ', path: '/admin/faq', icon: HelpCircle },
-  { name: 'Images', path: '/admin/images', icon: ImageIcon },
+  { name: 'Images', path: '/admin/images', icon: ImageIcon }, // <-- YENİ EKLENEN BUTON
 ];
 
 export default function AdminLayout() {
