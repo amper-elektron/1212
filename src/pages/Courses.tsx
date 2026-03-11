@@ -162,25 +162,6 @@ const css = `
   }
 `;
 
-/* ─── AnimatedNumber ─── */
-function AnimatedNumber({ target, suffix = '' }: { target: number; suffix?: string }) {
-  const [val, setVal] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-  useEffect(() => {
-    if (!inView) return;
-    let n = 0;
-    const step = target / 45;
-    const t = setInterval(() => {
-      n += step;
-      if (n >= target) { setVal(target); clearInterval(t); }
-      else setVal(Math.floor(n));
-    }, 28);
-    return () => clearInterval(t);
-  }, [inView, target]);
-  return <span ref={ref}>{val}{suffix}</span>;
-}
-
 /* ─── CourseCard ─── */
 const ICONS = [BookOpen, Users, Calendar, Target, Zap, Star];
 
@@ -299,9 +280,8 @@ export default function Courses() {
       >
         <div className="noise-overlay" />
 
-
         {/* ── COURSES ── */}
-        <section className="max-w-6xl mx-auto px-5 sm:px-8 py-20 relative z-10">
+        <section className="max-w-6xl mx-auto px-5 sm:px-8 pt-28 pb-20 relative z-10">
           <div className="flex items-center gap-4 mb-12">
             <div className="h-px w-8 bg-[#C9A96E]" />
             <span className="section-label">Programs</span>
