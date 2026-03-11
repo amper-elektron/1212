@@ -3,7 +3,7 @@ import React from 'react';
 export default function WhatsAppButton() {
   // DİKKAT: Buraya Asmar hocanın numarasını + işareti OLMADAN ülke koduyla yazmalısın.
   // Örnek Azerbaycan numarası için: 994501234567
-  const phoneNumber = "994500000000"; 
+  const phoneNumber = "994509742636"; 
   
   // Öğrenci butona tıkladığında WhatsApp'ta otomatik olarak yazılı gelecek hazır mesaj:
   const message = "Hello Asmar teacher, I would like to get information about your English courses.";
