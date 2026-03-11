@@ -205,15 +205,7 @@ export default function Reviews() {
 
         {/* ── Header ── */}
         <div className="max-w-6xl mx-auto px-5 sm:px-8 pt-24 pb-14 relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-center gap-3 mb-5"
-          >
-            <div className="h-px w-8 bg-[#C9A96E]" />
-            <span className="section-label">Testimonials</span>
-            <div className="h-px w-8 bg-[#C9A96E]" />
-          </motion.div>
+          
 
           <motion.h1
             initial={{ opacity: 0, y: 18 }}
@@ -221,7 +213,7 @@ export default function Reviews() {
             transition={{ duration: 0.65, ease: [0.23, 1, 0.32, 1] }}
             className="font-display text-5xl sm:text-6xl font-black text-[#1a1a2e] leading-tight mb-4"
           >
-            Student <em style={{ color: '#C9A96E' }}>Reviews</em>
+             <em style={{ color: '#C9A96E' }}>Reviews</em>
           </motion.h1>
 
           <motion.p
