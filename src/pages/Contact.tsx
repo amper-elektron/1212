@@ -29,7 +29,7 @@ export default function Contact() {
       .catch(err => console.error('Failed to fetch courses:', err));
   }, []);
 
-  const serviceOptions = [...courses.map(c => c.title), 'Personal Consultation', 'Other'];
+  const serviceOptions = [...courses.map(c => c.title),  'Other'];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
