@@ -13,12 +13,18 @@ interface Feedback {
 
 export default function Home() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [settings, setSettings] = useState<Record<string, string>>({}); // YENİ EKLENDİ
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/feedback')
       .then(res => res.json())
       .then(data => setFeedbacks(data));
+
+    // YENİ EKLENDİ: Resim ayarlarını veritabanından çek
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => setSettings(data));
   }, []);
 
   return (
@@ -84,8 +90,9 @@ export default function Home() {
             className="relative lg:ml-auto"
           >
             <div className="relative w-full max-w-md aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl">
+              {/* YENİ EKLENDİ: Resim yolu dinamik yapıldı */}
               <img
-                src="/home_photo1.png"
+                src={settings['home_image_1'] || "/home_photo1.png"}
                 alt="Asmar teaching"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
@@ -216,7 +223,8 @@ export default function Home() {
             </div>
             <div className="relative">
               <div className="aspect-square rounded-[3rem] overflow-hidden border-8 border-gray-800 rotate-3 hover:rotate-0 transition-transform duration-500">
-                <img src="/uploads/home_photo2.png" alt="Teaching" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                {/* YENİ EKLENDİ: Resim yolu dinamik yapıldı */}
+                <img src={settings['home_image_2'] || "/uploads/home_photo2.png"} alt="Teaching" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               </div>
               <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-brand-pink rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-pulse" />
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-purple rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-pulse" style={{ animationDelay: '1s' }} />
@@ -224,38 +232,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-     
-
-      {/* Image Modal */}
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 cursor-pointer"
-          >
-            <button 
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors"
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <motion.img
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              src={selectedImage}
-              alt="Full size review"
-              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-              referrerPolicy="no-referrer"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden">
@@ -274,10 +250,6 @@ export default function Home() {
             <ArrowRight className="w-6 h-6" />
           </Link>
         </div>
-        
-        {/* Decorative blobs */}
-        <div className="absolute top-1/2 left-10 -translate-y-1/2 w-64 h-64 bg-brand-pink/30 blob-shape -z-10" />
-        <div className="absolute top-1/2 right-10 -translate-y-1/2 w-80 h-80 bg-brand-blue/30 blob-shape -z-10" style={{ animationDelay: '-4s' }} />
       </section>
     </div>
   );
