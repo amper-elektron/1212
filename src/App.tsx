@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import React, { useEffect } from 'react'; 
+import { HelmetProvider } from 'react-helmet-async'; // SEO İÇİN EKLENDİ
 import WhatsAppButton from './components/WhatsAppButton'; 
 import ScrollToTop from './components/ScrollToTop'; 
 import Navbar from './components/Navbar';
@@ -20,9 +20,8 @@ import AdminFeedback from './pages/admin/AdminFeedback';
 import AdminFAQ from './pages/admin/AdminFAQ';
 import Login from './pages/admin/Login';
 import AdminImages from './pages/admin/AdminImages';
-import AdminComments from './pages/admin/AdminComments'; // YENİ EKLENDİ
+import AdminComments from './pages/admin/AdminComments';
 
-/**/
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('adminToken');
   if (!token) {
@@ -35,34 +34,37 @@ export default function App() {
   useEffect(() => {
     fetch('/api/track-visit', { method: 'POST' }).catch(() => {});
   }, []);
+
   return (
-    <Router>
-      <ScrollToTop /> {/* YENİ EKLENDİ: Sayfa değiştiğinde en üste çıkaran sistem */}
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Layout><Home /></Layout>} />
-        <Route path="/about" element={<Layout><About /></Layout>} />
-        <Route path="/courses" element={<Layout><Courses /></Layout>} />
-        <Route path="/blog" element={<Layout><Blog /></Layout>} />
-        <Route path="/contact" element={<Layout><Contact /></Layout>} />
-        <Route path="/reviews" element={<Layout><Reviews /></Layout>} />
+    <HelmetProvider>
+      <Router>
+        <ScrollToTop />
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Layout><Home /></Layout>} />
+          <Route path="/about" element={<Layout><About /></Layout>} />
+          <Route path="/courses" element={<Layout><Courses /></Layout>} />
+          <Route path="/blog" element={<Layout><Blog /></Layout>} />
+          <Route path="/contact" element={<Layout><Contact /></Layout>} />
+          <Route path="/reviews" element={<Layout><Reviews /></Layout>} />
 
-        {/* Admin Login */}
-        <Route path="/admin/login" element={<Login />} />
+          {/* Admin Login */}
+          <Route path="/admin/login" element={<Login />} />
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
-          <Route index element={<Dashboard />} />
-          <Route path="courses" element={<AdminCourses />} />
-          <Route path="blog" element={<AdminBlog />} />
-          <Route path="requests" element={<AdminRequests />} />
-          <Route path="feedback" element={<AdminFeedback />} />
-          <Route path="faq" element={<AdminFAQ />} />
-          <Route path="images" element={<AdminImages />} /> {/* DÜZELTİLDİ */}
-          <Route path="comments" element={<AdminComments />} /> {/* YENİ EKLENDİ */}
-        </Route>
-      </Routes>
-    </Router>
+          {/* Admin Routes */}
+          <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+            <Route index element={<Dashboard />} />
+            <Route path="courses" element={<AdminCourses />} />
+            <Route path="blog" element={<AdminBlog />} />
+            <Route path="requests" element={<AdminRequests />} />
+            <Route path="feedback" element={<AdminFeedback />} />
+            <Route path="faq" element={<AdminFAQ />} />
+            <Route path="images" element={<AdminImages />} />
+            <Route path="comments" element={<AdminComments />} />
+          </Route>
+        </Routes>
+      </Router>
+    </HelmetProvider>
   );
 }
 
