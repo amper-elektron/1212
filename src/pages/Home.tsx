@@ -63,11 +63,10 @@ interface Feedback {
   rating: number;
 }
 
-// YENİ EKLENDİ: Cloudinary resimlerini otomatik optimize eden fonksiyon (Boyutu %80 küçültür)
 const optimizeImage = (url: string) => {
   if (!url || !url.includes('cloudinary.com')) return url;
   if (url.includes('q_auto')) return url;
-  return url.replace('/upload/', '/upload/q_auto,f_auto/');
+  return url.replace('/upload/', '/upload/q_auto:eco,f_auto,w_800/');
 };
 
 export default function Home() {
@@ -103,8 +102,8 @@ export default function Home() {
 
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
               <h1 className="text-5xl lg:text-7xl font-display font-bold text-gray-900 leading-[1.1] mb-6">
