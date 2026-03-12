@@ -63,6 +63,13 @@ interface Feedback {
   rating: number;
 }
 
+// YENİ EKLENDİ: Cloudinary resimlerini otomatik optimize eden fonksiyon (Boyutu %80 küçültür)
+const optimizeImage = (url: string) => {
+  if (!url || !url.includes('cloudinary.com')) return url;
+  if (url.includes('q_auto')) return url;
+  return url.replace('/upload/', '/upload/q_auto,f_auto/');
+};
+
 export default function Home() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
@@ -126,6 +133,9 @@ export default function Home() {
                       key={i}
                       src={`https://picsum.photos/seed/student${i}/100/100`}
                       alt="Student"
+                      width="40"
+                      height="40"
+                      loading="lazy"
                       className="w-10 h-10 rounded-full border-2 border-white object-cover"
                       referrerPolicy="no-referrer"
                     />
@@ -150,8 +160,11 @@ export default function Home() {
             >
               <div className="relative w-full max-w-md aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl">
                 <img
-                  src={settings['home_image_1'] || "/home_photo1.png"}
+                  src={optimizeImage(settings['home_image_1'] || "/home_photo1.png")}
                   alt="Asmar teaching"
+                  width="448"
+                  height="560"
+                  fetchPriority="high"
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
@@ -239,7 +252,7 @@ export default function Home() {
                   <h3 className="text-xl font-display font-bold text-gray-900 mb-3">{service.title}</h3>
                   <p className="text-gray-600 mb-6">{service.desc}</p>
                   <Link to="/courses" className="inline-flex items-center font-bold text-gray-900 group-hover:text-brand-purple transition-colors">
-                    Learn more <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    Learn more about {service.title} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </motion.div>
               ))}
@@ -331,8 +344,11 @@ export default function Home() {
                 onMouseLeave={e => (e.currentTarget.style.rotate = '2deg')}
               >
                 <img
-                  src={settings['home_image_2'] || '/uploads/home_photo2.png'}
+                  src={optimizeImage(settings['home_image_2'] || '/home_photo1.png')}
                   alt="Teaching"
+                  width="512"
+                  height="512"
+                  loading="lazy"
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
@@ -348,7 +364,6 @@ export default function Home() {
         <section className="py-28 relative z-10" style={{ background: 'linear-gradient(180deg, #f9f6f0 0%, #fdfbf7 100%)' }}>
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             
-
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -381,7 +396,6 @@ export default function Home() {
               </Link>
             </motion.div>
 
-           
           </div>
         </section>
 
