@@ -148,29 +148,26 @@ try {
 
 initDb();
 
-// ZİYARETÇİ SAYACI (YENİ EKLENDİ)
+// api/index.ts içindeki /api/track-visit rotasını bul ve bununla değiştir:
+
 app.post('/api/track-visit', async (req, res) => {
-  // Vercel'in karmaşık IP formatından sadece asıl IP'yi alıyoruz
-  const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-  const ip = String(rawIp).split(',')[0].trim(); 
-  
   try {
-    await db.execute({ sql: 'INSERT OR IGNORE INTO visitors (ip) VALUES (?)', args: [ip] });
-    res.json({ success: true });
-  } catch (e) {
-    res.json({ success: false });
-  }
-});// ZİYARETÇİ SAYACI (YENİ EKLENDİ)
-app.post('/api/track-visit', async (req, res) => {
-  // Vercel'in karmaşık IP formatından sadece asıl IP'yi alıyoruz
-  const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-  const ip = String(rawIp).split(',')[0].trim(); 
-  
-  try {
-    await db.execute({ sql: 'INSERT OR IGNORE INTO visitors (ip) VALUES (?)', args: [ip] });
-    res.json({ success: true });
-  } catch (e) {
-    res.json({ success: false });
+    // Frontend'den gelen gizli kimliği (visitorId) al
+    const { visitorId } = req.body; 
+
+    // Eğer ID yoksa rastgele bir şey uydur (hata vermemesi için)
+    const idToSave = visitorId || 'anonymous_' + Date.now();
+
+    // Turso Veri tabanına kaydet
+    await db.execute({
+      sql: 'INSERT INTO visits (visitor_id) VALUES (?)',
+      args: [idToSave]
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Visit tracking error:', error);
+    res.status(500).json({ error: 'Failed to track visit' });
   }
 });
 
@@ -485,31 +482,33 @@ app.post('/api/admin/settings', requireAuth, upload.single('image'), async (req,
   }
 });
 
-app.get('/api/admin/analytics', requireAuth, async (req, res) => {
-  const { filter } = req.query; // 'day', 'month', 'year', 'all'
-  
-  let dateCondition = "";
-  if (filter === 'day') dateCondition = "WHERE visit_date = CURRENT_DATE";
-  else if (filter === 'month') dateCondition = "WHERE strftime('%Y-%m', visit_date) = strftime('%Y-%m', CURRENT_DATE)";
-  else if (filter === 'year') dateCondition = "WHERE strftime('%Y', visit_date) = strftime('%Y', CURRENT_DATE)";
-  
-  const visitorsResult = await db.execute(`SELECT COUNT(DISTINCT ip) as unique_visitors, COUNT(ip) as total_visitors FROM visitors ${dateCondition}`);
-  const visitors = visitorsResult.rows[0] as any;
-  
-  const blogStatsResult = await db.execute("SELECT SUM(likes) as total_likes, (SELECT COUNT(*) FROM blog_comments) as total_comments, COUNT(*) as total_posts FROM blog_posts");
-  const blogStats = blogStatsResult.rows[0] as any;
+// api/index.ts içindeki /api/admin/analytics rotasını bul ve bununla değiştir:
 
-  res.json({ 
-    visitors: {
-      total: visitors.total_visitors || 0,
-      unique: visitors.unique_visitors || 0
-    },
-    blog: {
-      totalPosts: blogStats.total_posts || 0,
-      totalLikes: blogStats.total_likes || 0,
-      totalComments: blogStats.total_comments || 0
-    }
-  });
+app.get('/api/admin/analytics', authenticateToken, async (req, res) => {
+  try {
+    const filter = req.query.filter || 'all';
+    
+    // 1. TOPLAM TIKLAMA (Sitedeki tüm hareketleri sayar)
+    const totalViewsResult = await db.execute('SELECT COUNT(*) as total FROM visits');
+    
+    // 2. BENZERSİZ (UNIQUE) ZİYARETÇİ (Sadece farklı visitor_id'leri sayar)
+    const uniqueVisitorsResult = await db.execute('SELECT COUNT(DISTINCT visitor_id) as unique_count FROM visits');
+
+    // Blog istatistiklerini de kendi tablondan çekiyorsundur, ben örnek bırakıyorum
+    const blogStats = { totalPosts: 0, totalLikes: 0, totalComments: 0 }; 
+
+    // Dashboard.tsx'e verileri gönderiyoruz
+    res.json({
+      visitors: {
+        total: totalViewsResult.rows[0].total,          // Turso'da veri .rows[0] içinden alınır
+        unique: uniqueVisitorsResult.rows[0].unique_count 
+      },
+      blog: blogStats
+    });
+  } catch (error) {
+    console.error('Analytics error:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics' });
+  }
 });
 
 export default app;
