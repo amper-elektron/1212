@@ -5,7 +5,6 @@ import ScrollToTop from './components/ScrollToTop';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
-// Güvenli standart importlar
 import Home from './pages/Home';
 import About from './pages/About';
 import Courses from './pages/Courses';
@@ -33,25 +32,32 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 export default function App() {
   useEffect(() => {
-    fetch('/api/track-visit', { method: 'POST' }).catch(() => {});
+    // 🚀 YENİ: Ziyaretçiye gizli ve kalıcı bir ID veriyoruz
+    let visitorId = localStorage.getItem('visitorId');
+    if (!visitorId) {
+      visitorId = 'visitor_' + Math.random().toString(36).substring(2, 15) + Date.now();
+      localStorage.setItem('visitorId', visitorId);
+    }
+
+    // Backend'e bu ID ile ziyareti bildiriyoruz
+    fetch('/api/track-visit', { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ visitorId }) 
+    }).catch(() => {});
   }, []);
 
   return (
     <Router>
       <ScrollToTop />
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/about" element={<Layout><About /></Layout>} />
         <Route path="/courses" element={<Layout><Courses /></Layout>} />
         <Route path="/blog" element={<Layout><Blog /></Layout>} />
         <Route path="/contact" element={<Layout><Contact /></Layout>} />
         <Route path="/reviews" element={<Layout><Reviews /></Layout>} />
-
-        {/* Admin Login */}
         <Route path="/admin/login" element={<Login />} />
-
-        {/* Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />
           <Route path="courses" element={<AdminCourses />} />
