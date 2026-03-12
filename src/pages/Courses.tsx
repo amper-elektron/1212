@@ -257,7 +257,13 @@ export default function Courses() {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-
+  
+   useEffect(() => {
+    document.title = "Kurslar | Asmar Burjaliyeva | English with Asmar";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute("content", "Ehtiyacınıza uyğun praktiki ingilis dili kursları. Asmar Burjaliyeva ilə qrammatika və danışıq dərsləri.");
+  }, []);
+  
   useEffect(() => {
     Promise.all([
       fetch('/api/courses').then(r => r.json()),
