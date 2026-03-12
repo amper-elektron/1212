@@ -35,10 +35,10 @@ const ADMIN_PASS = process.env.ADMIN_PASS || '238492@';
 // Initialize Database
 async function initDb() {
   // Yorumlara onay sütunu ekle (Eğer daha önce yoksa)
-try {
-  await db.execute('ALTER TABLE blog_comments ADD COLUMN approved BOOLEAN DEFAULT 0');
-} catch (e) { /* Sütun zaten varsa hata vermez, yoksayar */ }
-try {
+  try {
+    await db.execute('ALTER TABLE blog_comments ADD COLUMN approved BOOLEAN DEFAULT 0');
+  } catch (e) { /* Sütun zaten varsa hata vermez, yoksayar */ }
+  try {
     await db.executeMultiple(`
       CREATE TABLE IF NOT EXISTS courses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -110,11 +110,16 @@ try {
         answer TEXT NOT NULL
       );
 
-      CREATE TABLE IF NOT EXISTS visitors (
+      CREATE TABLE IF NOT EXISTS site_settings (
+        setting_key TEXT PRIMARY KEY, 
+        setting_value TEXT
+      );
+
+      /* YENİ EKLENDİ: Ziyaretçileri benzersiz ID ile tutan tablo */
+      CREATE TABLE IF NOT EXISTS visits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ip TEXT NOT NULL,
-        visit_date DATE DEFAULT CURRENT_DATE,
-        UNIQUE(ip, visit_date)
+        visitor_id TEXT NOT NULL,
+        visited_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -148,29 +153,6 @@ try {
 
 initDb();
 
-// api/index.ts içindeki /api/track-visit rotasını bul ve bununla değiştir:
-
-app.post('/api/track-visit', async (req, res) => {
-  try {
-    // Frontend'den gelen gizli kimliği (visitorId) al
-    const { visitorId } = req.body; 
-
-    // Eğer ID yoksa rastgele bir şey uydur (hata vermemesi için)
-    const idToSave = visitorId || 'anonymous_' + Date.now();
-
-    // Turso Veri tabanına kaydet
-    await db.execute({
-      sql: 'INSERT INTO visits (visitor_id) VALUES (?)',
-      args: [idToSave]
-    });
-
-    res.status(200).json({ success: true });
-  } catch (error) {
-    console.error('Visit tracking error:', error);
-    res.status(500).json({ error: 'Failed to track visit' });
-  }
-});
-
 // Auth middleware
 const requireAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const authHeader = req.headers.authorization;
@@ -185,8 +167,6 @@ const requireAuth = (req: express.Request, res: express.Response, next: express.
     return res.status(401).json({ error: 'Unauthorized' });
   }
 };
-
-
 
 // Auth
 app.post('/api/login', (req, res) => {
@@ -214,6 +194,24 @@ const uploadToCloudinary = (buffer: Buffer, folder: string): Promise<string> => 
 };
 
 // API Routes
+
+// --- TRACK VISITS (Yeni ID Sistemi) ---
+app.post('/api/track-visit', async (req, res) => {
+  try {
+    const { visitorId } = req.body; 
+    const idToSave = visitorId || 'anonymous_' + Date.now();
+
+    await db.execute({
+      sql: 'INSERT INTO visits (visitor_id) VALUES (?)',
+      args: [idToSave]
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Visit tracking error:', error);
+    res.status(500).json({ error: 'Failed to track visit' });
+  }
+});
 
 // Courses
 app.get('/api/courses', async (req, res) => {
@@ -447,11 +445,45 @@ app.get('/api/admin/stats', requireAuth, async (req, res) => {
   res.json({ pendingRequests: result.rows[0].count });
 });
 
+// --- ANALYTICS (GELİŞMİŞ ZİYARETÇİ VE BLOG SAYACI) ---
+app.get('/api/admin/analytics', requireAuth, async (req, res) => {
+  try {
+    const filter = req.query.filter || 'all';
+    
+    let timeQuery = '';
+    if (filter === 'day') timeQuery = "WHERE date(visited_at) = date('now')";
+    if (filter === 'month') timeQuery = "WHERE strftime('%Y-%m', visited_at) = strftime('%Y-%m', 'now')";
+    if (filter === 'year') timeQuery = "WHERE strftime('%Y', visited_at) = strftime('%Y', 'now')";
+
+    // Ziyaretçileri say
+    const totalViewsResult = await db.execute(`SELECT COUNT(*) as total FROM visits ${timeQuery}`);
+    const uniqueVisitorsResult = await db.execute(`SELECT COUNT(DISTINCT visitor_id) as unique_count FROM visits ${timeQuery}`);
+
+    // Blog istatistiklerini say
+    const blogPostsCount = await db.execute("SELECT COUNT(*) as count FROM blog_posts WHERE archived = 0");
+    const blogLikesCount = await db.execute("SELECT SUM(likes) as count FROM blog_posts");
+    const blogCommentsCount = await db.execute("SELECT COUNT(*) as count FROM blog_comments");
+
+    res.json({
+      visitors: {
+        total: totalViewsResult.rows[0].total || 0,
+        unique: uniqueVisitorsResult.rows[0].unique_count || 0
+      },
+      blog: {
+        totalPosts: blogPostsCount.rows[0].count || 0,
+        totalLikes: blogLikesCount.rows[0].count || 0,
+        totalComments: blogCommentsCount.rows[0].count || 0
+      }
+    });
+  } catch (error) {
+    console.error('Analytics error:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics' });
+  }
+});
+
 // --- SITE SETTINGS (HOME IMAGES) ---
 app.get('/api/settings', async (req, res) => {
   try {
-    // Tablo yoksa otomatik oluşturur (ilk çalışmada)
-    await db.execute('CREATE TABLE IF NOT EXISTS site_settings (setting_key TEXT PRIMARY KEY, setting_value TEXT)');
     const result = await db.execute('SELECT * FROM site_settings');
     const settings: Record<string, string> = {};
     result.rows.forEach((row: any) => { settings[row.setting_key] = row.setting_value; });
@@ -466,10 +498,8 @@ app.post('/api/admin/settings', requireAuth, upload.single('image'), async (req,
     const { key } = req.body;
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     
-    await db.execute('CREATE TABLE IF NOT EXISTS site_settings (setting_key TEXT PRIMARY KEY, setting_value TEXT)');
     const url = await uploadToCloudinary(req.file.buffer, 'settings');
     
-    // Veritabanına kaydet veya varsa güncelle
     await db.execute({ 
       sql: 'INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON CONFLICT(setting_key) DO UPDATE SET setting_value = ?', 
       args: [key, url, url] 
@@ -479,35 +509,6 @@ app.post('/api/admin/settings', requireAuth, upload.single('image'), async (req,
   } catch (error) {
     console.error('Settings upload error:', error);
     res.status(500).json({ error: 'Failed to update setting' });
-  }
-});
-
-// api/index.ts içindeki /api/admin/analytics rotasını bul ve bununla değiştir:
-
-app.get('/api/admin/analytics', authenticateToken, async (req, res) => {
-  try {
-    const filter = req.query.filter || 'all';
-    
-    // 1. TOPLAM TIKLAMA (Sitedeki tüm hareketleri sayar)
-    const totalViewsResult = await db.execute('SELECT COUNT(*) as total FROM visits');
-    
-    // 2. BENZERSİZ (UNIQUE) ZİYARETÇİ (Sadece farklı visitor_id'leri sayar)
-    const uniqueVisitorsResult = await db.execute('SELECT COUNT(DISTINCT visitor_id) as unique_count FROM visits');
-
-    // Blog istatistiklerini de kendi tablondan çekiyorsundur, ben örnek bırakıyorum
-    const blogStats = { totalPosts: 0, totalLikes: 0, totalComments: 0 }; 
-
-    // Dashboard.tsx'e verileri gönderiyoruz
-    res.json({
-      visitors: {
-        total: totalViewsResult.rows[0].total,          // Turso'da veri .rows[0] içinden alınır
-        unique: uniqueVisitorsResult.rows[0].unique_count 
-      },
-      blog: blogStats
-    });
-  } catch (error) {
-    console.error('Analytics error:', error);
-    res.status(500).json({ error: 'Failed to fetch analytics' });
   }
 });
 
