@@ -7,6 +7,12 @@ export default function Contact() {
   const [searchParams] = useSearchParams();
   const preselectedService = searchParams.get('service') || '';
 
+  useEffect(() => {
+    document.title = "Əlaqə | English with Asmar | Əsmər Bürcəliyeva";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute("content", "İngilis dili kursları və fərdi dərslər üçün Əsmər Bürcəliyeva ilə əlaqə saxlayın.");
+  }, []);
+
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
