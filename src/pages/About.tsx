@@ -66,7 +66,13 @@ export default function About() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
-
+  
+ useEffect(() => {
+    document.title = "Haqqımda | Əsmər Bürcəliyeva | English Teacher";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute("content", "Əsmər Bürcəliyeva - 10 ildən artıq təcrübəyə malik sertifikatlı ingilis dili müəllimi.");
+  }, []);
+  
   useEffect(() => {
     fetch('/api/settings')
       .then((res) => {
