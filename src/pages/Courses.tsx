@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'motion/react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async'; // SEO İÇİN EKLENDİ
 import {
   ArrowRight, Users, BookOpen, Calendar, Plus, Minus,
   Target, Zap, Star, CheckCircle2,
@@ -273,6 +274,16 @@ export default function Courses() {
 
   return (
     <>
+      {/* GOOGLE SEO KODLARI BURADA BAŞLIYOR */}
+      <Helmet>
+        <title>İngilis Dili Kursları | English with Asmar</title>
+        <meta name="description" content="Əsmər Bürcəliyeva ilə ehtiyacınıza uyğun praktiki ingilis dili kursları. Speaking Club, qrammatika və danışıq dərsləri ilə ingiliscə sərbəst danışın." />
+        <meta name="keywords" content="ingilis dili kursları, speaking club baku, english courses baku, online ingilis dili, asmar teacher, asmar burjaliyeva kurslar" />
+        <meta property="og:title" content="İngilis Dili Kursları | English with Asmar" />
+        <meta property="og:description" content="Əsmər Bürcəliyeva ilə ehtiyacınıza uyğun praktiki ingilis dili kursları." />
+      </Helmet>
+      {/* GOOGLE SEO KODLARI BURADA BİTİYOR */}
+
       <style>{css}</style>
       <div
         className="courses-root min-h-screen"
@@ -421,8 +432,6 @@ export default function Courses() {
             </div>
           </section>
         )}
-
-
       </div>
     </>
   );
