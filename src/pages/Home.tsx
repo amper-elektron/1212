@@ -67,7 +67,13 @@ export default function Home() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
+  
+   useEffect(() => {
+    document.title = "Ana Səhifə | English with Asmar | Əsmər Bürcəliyeva";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute("content", "Əsmər Bürcəliyeva ilə praktiki ingilis dili dərsləri və speaking club.");
+  }, []);
+  
   useEffect(() => {
     fetch('/api/feedback')
       .then(res => res.json())
